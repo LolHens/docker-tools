@@ -9,48 +9,53 @@ fi
 option=$1
 shift
 
-if [ "${option}" == "add" ]
+if [ $option == "add" ]
 then
   appfolder=$1
   source=$2
   target="/usr/local/appdata/${appfolder}"
-
-  mkdir -p "${target}"
+  
+  mkdir -p $target/..
+  if [ -f $source ]
+  then
+    touch $target
+  else
+    mkdir $target
+  fi
+  
   echo "\"${appfolder}\" \"${source}\"" >> "/usr/local/etc/appfolders.conf"
-
-elif [ "${option}" == "list" ]
+  
+elif [ $option == "list" ]
 then
   cat "/usr/local/etc/appfolders.conf" | while read line
   do
-    appfolder=`echo ${line} | grep -oP '^"\K([^"]*)(?=" )|^\K([^ ]*)(?= )'`
-    source=`echo ${line} | grep -oP ' "\K([^"]*)(?="$)| \K([^ ]*)(?=$)'`
-
+    appfolder=`echo $line | grep -oP '^"\K([^"]*)(?=" )|^\K([^ ]*)(?= )'`
+    source=`echo $line | grep -oP ' "\K([^"]*)(?="$)| \K([^ ]*)(?=$)'`
+    
     echo "${appfolder} ${source}"
   done
-
-elif [ "${option}" == "link" ]
+  
+elif [ $option == "link" ]
 then
   cat "/usr/local/etc/appfolders.conf" | while read line
   do
-    appfolder=`echo ${line} | grep -oP '^"\K([^"]*)(?=" )|^\K([^ ]*)(?= )'`
-    source=`echo ${line} | grep -oP ' "\K([^"]*)(?="$)| \K([^ ]*)(?=$)'`
+    appfolder=`echo $line | grep -oP '^"\K([^"]*)(?=" )|^\K([^ ]*)(?= )'`
+    source=`echo $line | grep -oP ' "\K([^"]*)(?="$)| \K([^ ]*)(?=$)'`
     target="/usr/local/appdata/${appfolder}"
-
-    if [ ! -d "${target}" ]
+    
+    if [ ! -e $target ]
     then
-      mkdir -p "${target}"
+      mkdir -p $target/..
+      if [ -e $source ]
+      then
+        cp -rfT $source $target
+      else
+        mkdir $target
+      fi
     fi
-
-    if [ ! -d "${source}" ]
-    then
-      mkdir -p "${source}"
-    elif [ ! "$(ls -A ${target})" ]
-    then
-      cp -rfT "${source}" "${target}"
-    fi
-
-    rm -rf "${source}"
-    ln -sfT "${target}" "${source}"
+    
+    rm -rf $source
+    ln -sfT $target $source
   done
-
+  
 fi
