@@ -15,7 +15,7 @@ then
   source=$2
   target="/usr/local/appdata/${appfolder}"
   
-  mkdir -p $target/..
+  mkdir -p `dirname $target`
   if [ -f $source ]
   then
     touch $target
@@ -45,7 +45,7 @@ then
     
     if [ ! -e $target ]
     then
-      mkdir -p $target/..
+      mkdir -p `dirname $target`
       if [ -e $source ]
       then
         cp -rfT $source $target
