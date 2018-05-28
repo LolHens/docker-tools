@@ -5,6 +5,4 @@ do
   "/etc/my_init.d/${file}"
 done
 
-"/etc/rc.local"
-
 exec "$@"
